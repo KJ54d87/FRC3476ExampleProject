@@ -8,7 +8,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import frc.utility.Controller;
+import frc.subsystem.Intake;
 
 
 /**
@@ -92,7 +93,27 @@ public class Robot extends TimedRobot
     
     /** This method is called periodically during operator control. */
     @Override
-    public void teleopPeriodic() {}
+    public void teleopPeriodic() {
+        Controller instance = new Controller(0);
+        Intake intake = new Intake();
+        instance.update();
+        //a is press to extend/ contract
+        //right is hold to intake
+        //left is hold to output
+        if (instance.getRisingEdge(1)){
+            intake.toggleSolState();
+        }
+
+        if (instance.getRawButton(5)){
+            intake.setMotor(Intake.IntakeState.INTAKE);
+        }
+        if (instance.getRawButton(6)){
+            intake.setMotor(Intake.IntakeState.EJECT);
+        }
+        if ((instance.getRawButton(5) && instance.getRawButton(6)) || !(instance.getRawButton(5) && instance.getRawButton(6))) {
+            intake.setMotor(Intake.IntakeState.OFF);
+        }
+    }
     
     
     /** This method is called once when the robot is disabled. */
