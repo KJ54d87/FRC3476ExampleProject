@@ -42,7 +42,7 @@ public class Intake extends AbstractSubsystem {
 
     /** returns true if the intake is extended, false if not **/
     private boolean solState(){
-        return intakeSol.get();
+        return !intakeSol.get();
     }
     public synchronized void toggleSolState(){
         if (solState()){
