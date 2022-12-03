@@ -5,7 +5,6 @@ import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
 
 import static frc.utility.Pneumatics.getPneumaticsHub;
 
@@ -15,18 +14,24 @@ public class Intake extends AbstractSubsystem {
 
     private static final int INTAKE_MOTOR_DEVICE_ID = 40;
 
-    public static final double INTAKE_SPEED = -1; // Why is intaking -1?
+    public static final double INTAKE_SPEED = -1; // Why is in-taking -1?
 
     private final Solenoid intakeSol;
     private TalonFX intakeMotorFalcon;
 
+    private static Intake intake = new Intake();
+
     public Intake() {
-        super(-1);
+        super(-1); // sets update to 0 so no update goes on
         intakeSol = getPneumaticsHub().makeSolenoid(INTAKE_SOLENOID_CHANNEL);
         intakeMotorFalcon = new TalonFX(INTAKE_MOTOR_DEVICE_ID);
-        //IDK what these two bellow do, but they seem to set a limit for the motors apparently and I don't want to accidently blow something up.
-        intakeMotorFalcon.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(false, 40, 70, 0), 1000);
+        //IDK what these two bellow do, but they seem to set a limit for the motors apparently and I don't want to accidentally blow something up.
+        intakeMotorFalcon.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 40, 70, 0), 1000);
         intakeMotorFalcon.configOpenloopRamp(0.2, 1000);
+    }
+
+    public static Intake getInstance(){
+        return intake;
     }
 
     public enum IntakeSolState {
@@ -73,14 +78,10 @@ public class Intake extends AbstractSubsystem {
 
     public void setMotor(IntakeState intakeState){
         //I could use a switch, but we only have three states and I don't want the entire thing to be copy and paste
-        if (intakeState == IntakeState.INTAKE){
-            if (solState()){ // only run if intake is out
-                setIntakeMotor(INTAKE_SPEED);
-            }
-        } else if (intakeState == IntakeState.EJECT){
-            if (solState()) { // only run if intake is out
-                setIntakeMotor(-INTAKE_SPEED);
-            }
+        if (intakeState == IntakeState.INTAKE && solState()){ // only run if intake is out
+            setIntakeMotor(INTAKE_SPEED);
+        } else if (intakeState == IntakeState.EJECT && solState()){
+            setIntakeMotor(-INTAKE_SPEED);
         } else if (intakeState == IntakeState.OFF){
             setIntakeMotor(0);
         }

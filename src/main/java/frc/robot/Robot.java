@@ -24,6 +24,7 @@ public class Robot extends TimedRobot
     private static final String CUSTOM_AUTO = "My Auto";
     private String autoSelected;
     private final SendableChooser<String> chooser = new SendableChooser<>();
+    Controller instance;
     
     
     /**
@@ -33,6 +34,7 @@ public class Robot extends TimedRobot
     @Override
     public void robotInit()
     {
+        instance = new Controller(0);
         chooser.setDefaultOption("Default Auto", DEFAULT_AUTO);
         chooser.addOption("My Auto", CUSTOM_AUTO);
         SmartDashboard.putData("Auto choices", chooser);
@@ -94,9 +96,9 @@ public class Robot extends TimedRobot
     /** This method is called periodically during operator control. */
     @Override
     public void teleopPeriodic() {
-        Controller instance = new Controller(0);
-        Intake intake = new Intake();
+
         instance.update();
+        Intake intake = Intake.getInstance();
         //a is press to extend/ contract
         //right is hold to intake
         //left is hold to output
@@ -104,13 +106,11 @@ public class Robot extends TimedRobot
             intake.toggleSolState();
         }
 
-        if (instance.getRawButton(5)){
+        if (instance.getRawButton(5)) {
             intake.setMotor(Intake.IntakeState.INTAKE);
-        }
-        if (instance.getRawButton(6)){
+        } else if (instance.getRawButton(6)){
             intake.setMotor(Intake.IntakeState.EJECT);
-        }
-        if ((instance.getRawButton(5) && instance.getRawButton(6)) || !(instance.getRawButton(5) && instance.getRawButton(6))) {
+        } else {
             intake.setMotor(Intake.IntakeState.OFF);
         }
     }
